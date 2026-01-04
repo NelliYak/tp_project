@@ -1,0 +1,11 @@
+[
+  {
+    "id": 1,
+    "title": "Интерстеллар",
+    "year": 2014,
+    "genre": "Фантастика",
+    "rating": 8.6,
+    "description": "Тестовый фильм",
+    "favorite": false
+  }
+]
