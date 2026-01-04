@@ -1,14 +1,44 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Каталог фильмов</title>
-    <style>
-        body { font-family: Arial; padding: 20px; }
-        h1 { color: #333; }
-    </style>
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-    <h1>🎬 Каталог фильмов</h1>
-    <p>Интерфейс будет здесь</p>
+    <div class="container">
+        <header>
+            <h1>🎬 Каталог фильмов</h1>
+        </header>
+        
+        <!-- Форма добавления фильма -->
+        <div class="add-film">
+            <h3>Добавить новый фильм:</h3>
+            <div class="form-row">
+                <input type="text" id="titleInput" placeholder="Название" required>
+                <input type="number" id="yearInput" placeholder="Год" min="1900">
+                <input type="text" id="genreInput" placeholder="Жанр">
+                <button id="addBtn" onclick="addFilm()">➕ Добавить</button>
+            </div>
+        </div>
+        
+        <!-- Поиск -->
+        <div class="search">
+            <input type="text" id="searchInput" placeholder="Поиск фильма...">
+            <button onclick="searchFilms()">🔍 Найти</button>
+        </div>
+        
+        <!-- Список фильмов -->
+        <div class="films-container">
+            <h3>Список фильмов (<span id="filmCount">0</span>)</h3>
+            <div id="filmsList" class="films-list">
+                <!-- Фильмы будут здесь -->
+            </div>
+        </div>
+    </div>
+    
+    <script src="js/api.js"></script>
+    <script src="js/app.js"></script>
 </body>
 </html>
