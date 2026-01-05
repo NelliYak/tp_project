@@ -33,4 +33,27 @@ class FilmManager:
                 return deleted_film
         return None
 
+    def update_film(self, film_id, film_data):
+        """Обновить фильм по ID"""
+        films = self.get_all_films()
+        
+        for i, film in enumerate(films):
+            if film["id"] == film_id:
+                # Обновляем только переданные поля
+                for key, value in film_data.items():
+                    if key != "id":  # Не позволяем менять ID
+                        films[i][key] = value
+                
+                self.save_films(films)
+                return films[i]
+        
+        return None
+        films = self.get_all_films()
+        for i, film in enumerate(films):
+            if film['id'] == film_id:
+                deleted_film = films.pop(i)
+                self.save_films(films)
+                return deleted_film
+        return None
+
 film_manager = FilmManager()
