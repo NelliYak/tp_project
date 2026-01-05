@@ -87,3 +87,27 @@ def toggle_favorite(film_id):
 def get_favorites():
     favorites = film_manager.get_favorites()
     return jsonify(favorites)
+
+
+# 9. РАСШИРЕННЫЙ ПОИСК
+@bp.route('/films/search', methods=['GET'])
+def search_films():
+    """Расширенный поиск фильмов (ИСПРАВЛЕННЫЙ)"""
+    from urllib.parse import unquote
+
+    # Декодируем русские символы из URL
+    search_term = unquote(request.args.get('q', '')) if request.args.get('q') else None
+    genre = unquote(request.args.get('genre', '')) if request.args.get('genre') else None
+    min_year = request.args.get('min_year')
+    max_year = request.args.get('max_year')
+    min_rating = request.args.get('min_rating')
+
+    results = film_manager.search_films(
+        search_term=search_term,
+        genre=genre,
+        min_year=min_year,
+        max_year=max_year,
+        min_rating=min_rating
+    )
+
+    return jsonify(results)

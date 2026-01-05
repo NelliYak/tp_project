@@ -74,5 +74,32 @@ class FilmManager:
         films = self.get_all_films()
         return [film for film in films if film.get('favorite', False)]
 
+    def search_films(self, search_term=None, genre=None, min_year=None, max_year=None, min_rating=None):
+        """Расширенный поиск фильмов"""
+        films = self.get_all_films()
+        results = films
+
+        # Поиск по названию (если передан)
+        if search_term:
+            search_term = search_term.lower()
+            results = [f for f in results if search_term in f.get('title', '').lower()]
+
+        # Фильтр по жанру
+        if genre:
+            results = [f for f in results if f.get('genre', '').lower() == genre.lower()]
+
+        # Фильтр по минимальному году
+        if min_year:
+            results = [f for f in results if f.get('year', 0) >= int(min_year)]
+
+        # Фильтр по максимальному году
+        if max_year:
+            results = [f for f in results if f.get('year', 0) <= int(max_year)]
+
+        # Фильтр по минимальному рейтингу
+        if min_rating:
+            results = [f for f in results if f.get('rating', 0) >= float(min_rating)]
+
+        return results
 
 film_manager = FilmManager()
