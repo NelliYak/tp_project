@@ -65,3 +65,25 @@ def delete_film(film_id):
     if film:
         return jsonify({'message': 'Фильм удален', 'film': film})
     return jsonify({'error': 'Фильм не найден'}), 404
+
+
+# 7. ИЗБРАННОЕ: добавить/удалить
+@bp.route('/films/<int:film_id>/favorite', methods=['POST'])
+def toggle_favorite(film_id):
+    film = film_manager.toggle_favorite(film_id)
+
+    if film:
+        action = 'добавлен в избранное' if film['favorite'] else 'удален из избранного'
+        return jsonify({
+            'message': f'Фильм {action}',
+            'film': film
+        })
+
+    return jsonify({'error': 'Фильм не найден'}), 404
+
+
+# 8. Получить избранные фильмы
+@bp.route('/favorites', methods=['GET'])
+def get_favorites():
+    favorites = film_manager.get_favorites()
+    return jsonify(favorites)

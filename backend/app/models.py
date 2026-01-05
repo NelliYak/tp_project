@@ -56,4 +56,23 @@ class FilmManager:
                 return deleted_film
         return None
 
+    def toggle_favorite(self, film_id):
+        """Добавить/удалить из избранного"""
+        films = self.get_all_films()
+
+        for film in films:
+            if film['id'] == film_id:
+                # Если поле favorite есть - переключаем, иначе ставим true
+                film['favorite'] = not film.get('favorite', False)
+                self.save_films(films)
+                return film
+
+        return None
+
+    def get_favorites(self):
+        """Получить все избранные фильмы"""
+        films = self.get_all_films()
+        return [film for film in films if film.get('favorite', False)]
+
+
 film_manager = FilmManager()
