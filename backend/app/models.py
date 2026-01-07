@@ -33,4 +33,73 @@ class FilmManager:
                 return deleted_film
         return None
 
+    def update_film(self, film_id, film_data):
+        """Обновить фильм по ID"""
+        films = self.get_all_films()
+        
+        for i, film in enumerate(films):
+            if film["id"] == film_id:
+                # Обновляем только переданные поля
+                for key, value in film_data.items():
+                    if key != "id":  # Не позволяем менять ID
+                        films[i][key] = value
+                
+                self.save_films(films)
+                return films[i]
+        
+        return None
+        films = self.get_all_films()
+        for i, film in enumerate(films):
+            if film['id'] == film_id:
+                deleted_film = films.pop(i)
+                self.save_films(films)
+                return deleted_film
+        return None
+
+    def toggle_favorite(self, film_id):
+        """Добавить/удалить из избранного"""
+        films = self.get_all_films()
+
+        for film in films:
+            if film['id'] == film_id:
+                # Если поле favorite есть - переключаем, иначе ставим true
+                film['favorite'] = not film.get('favorite', False)
+                self.save_films(films)
+                return film
+
+        return None
+
+    def get_favorites(self):
+        """Получить все избранные фильмы"""
+        films = self.get_all_films()
+        return [film for film in films if film.get('favorite', False)]
+
+    def search_films(self, search_term=None, genre=None, min_year=None, max_year=None, min_rating=None):
+        """Расширенный поиск фильмов"""
+        films = self.get_all_films()
+        results = films
+
+        # Поиск по названию (если передан)
+        if search_term:
+            search_term = search_term.lower()
+            results = [f for f in results if search_term in f.get('title', '').lower()]
+
+        # Фильтр по жанру
+        if genre:
+            results = [f for f in results if f.get('genre', '').lower() == genre.lower()]
+
+        # Фильтр по минимальному году
+        if min_year:
+            results = [f for f in results if f.get('year', 0) >= int(min_year)]
+
+        # Фильтр по максимальному году
+        if max_year:
+            results = [f for f in results if f.get('year', 0) <= int(max_year)]
+
+        # Фильтр по минимальному рейтингу
+        if min_rating:
+            results = [f for f in results if f.get('rating', 0) >= float(min_rating)]
+
+        return results
+
 film_manager = FilmManager()

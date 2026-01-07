@@ -3,13 +3,21 @@ from .models import film_manager
 
 bp = Blueprint('api', __name__, url_prefix='/api')
 
-# Получить все фильмы
+
+# 1. Проверка здоровья
+@bp.route('/health')
+def health():
+    return jsonify({"status": "ok", "message": "API работает"})
+
+
+# 2. Получить все фильмы
 @bp.route('/films', methods=['GET'])
 def get_films():
     films = film_manager.get_all_films()
     return jsonify(films)
 
-# Получить один фильм
+
+# 3. Получить один фильм
 @bp.route('/films/<int:film_id>', methods=['GET'])
 def get_film(film_id):
     films = film_manager.get_all_films()
@@ -18,27 +26,88 @@ def get_film(film_id):
             return jsonify(film)
     return jsonify({'error': 'Фильм не найден'}), 404
 
-# Добавить фильм
+
+# 4. Добавить фильм
 @bp.route('/films', methods=['POST'])
 def add_film():
     data = request.get_json()
-    
-    # Проверка обязательных полей
-    if not data.get('title') or not data.get('year') or not data.get('genre'):
+
+    if not data or not data.get('title') or not data.get('year') or not data.get('genre'):
         return jsonify({'error': 'Необходимы title, year и genre'}), 400
-    
+
     film = film_manager.add_film(data)
     return jsonify(film), 201
 
-# Удалить фильм
-@bp.route('/films/<int:film_id>', methods=['DELETE'])
-def delete_film(film_id):
-    result = film_manager.delete_film(film_id)
-    if result:
-        return jsonify({'message': 'Фильм удален', 'film': result})
+
+# 5. ОБНОВИТЬ ФИЛЬМ (НОВАЯ ФУНКЦИЯ)
+@bp.route('/films/<int:film_id>', methods=['PUT'])
+def update_film(film_id):
+    data = request.get_json()
+
+    if not data:
+        return jsonify({'error': 'Нет данных для обновления'}), 400
+
+    film = film_manager.update_film(film_id, data)
+
+    if film:
+        return jsonify({
+            'message': 'Фильм успешно обновлен',
+            'film': film
+        })
+
     return jsonify({'error': 'Фильм не найден'}), 404
 
-# Проверка здоровья (уже была)
-@bp.route('/health')
-def health():
-    return jsonify({"status": "ok", "message": "API работает"})
+
+# 6. Удалить фильм
+@bp.route('/films/<int:film_id>', methods=['DELETE'])
+def delete_film(film_id):
+    film = film_manager.delete_film(film_id)
+    if film:
+        return jsonify({'message': 'Фильм удален', 'film': film})
+    return jsonify({'error': 'Фильм не найден'}), 404
+
+
+# 7. ИЗБРАННОЕ: добавить/удалить
+@bp.route('/films/<int:film_id>/favorite', methods=['POST'])
+def toggle_favorite(film_id):
+    film = film_manager.toggle_favorite(film_id)
+
+    if film:
+        action = 'добавлен в избранное' if film['favorite'] else 'удален из избранного'
+        return jsonify({
+            'message': f'Фильм {action}',
+            'film': film
+        })
+
+    return jsonify({'error': 'Фильм не найден'}), 404
+
+
+# 8. Получить избранные фильмы
+@bp.route('/favorites', methods=['GET'])
+def get_favorites():
+    favorites = film_manager.get_favorites()
+    return jsonify(favorites)
+
+
+# 9. РАСШИРЕННЫЙ ПОИСК
+@bp.route('/films/search', methods=['GET'])
+def search_films():
+    """Расширенный поиск фильмов (ИСПРАВЛЕННЫЙ)"""
+    from urllib.parse import unquote
+
+    # Декодируем русские символы из URL
+    search_term = unquote(request.args.get('q', '')) if request.args.get('q') else None
+    genre = unquote(request.args.get('genre', '')) if request.args.get('genre') else None
+    min_year = request.args.get('min_year')
+    max_year = request.args.get('max_year')
+    min_rating = request.args.get('min_rating')
+
+    results = film_manager.search_films(
+        search_term=search_term,
+        genre=genre,
+        min_year=min_year,
+        max_year=max_year,
+        min_rating=min_rating
+    )
+
+    return jsonify(results)
